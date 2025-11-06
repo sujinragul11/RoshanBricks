@@ -51,6 +51,12 @@ export default function ProductsPage() {
   const handleAddSubmit = async (e) => {
     e.preventDefault()
 
+    // Check if user is logged in
+    if (!currentUser?.id) {
+      alert('Please login to add products.')
+      return
+    }
+
     const newErrors = {}
     if (!addForm.name.trim()) newErrors.name = 'Product name is required'
     if (!addForm.priceAmount || addForm.priceAmount <= 0)
@@ -65,7 +71,7 @@ export default function ProductsPage() {
 
     try {
       const payload = {
-        manufacturerId: currentUser?.id,
+        manufacturerId: currentUser.id,
         name: addForm.name,
         category: 'General',
         priceRange: addForm.priceAmount.toString(),

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Card } from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 import { User, Upload, Edit, Phone, Mail, MapPin } from 'lucide-react'
+import { getCurrentUser } from '../../../lib/auth'
 
 const API_BASE_URL = 'http://localhost:7700/api'
 
@@ -34,9 +35,11 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        const user = getCurrentUser();
         const response = await fetch(`${API_BASE_URL}/truck_owner/profile`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'X-Employee-Id': user.employeeId,
+            'X-User-Roles': user.roles.join(','),
             'Content-Type': 'application/json'
           }
         })
@@ -64,10 +67,12 @@ export default function Profile() {
 
   const handleSave = async () => {
     try {
+      const user = getCurrentUser();
       const response = await fetch(`${API_BASE_URL}/truck_owner/profile`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'X-Employee-Id': user.employeeId,
+          'X-User-Roles': user.roles.join(','),
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(profile)

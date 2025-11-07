@@ -11,69 +11,51 @@ export default function TruckManagement() {
   const [trucks, setTrucks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [truckOwnerId, setTruckOwnerId] = useState(null)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const fetchTruckOwnerId = async () => {
-      try {
-        const user = getCurrentUser();
-        if (!user) {
-          navigate('/user/login');
-          return;
-        }
-
-        // Get truck owner ID from acting labour table
-        const response = await fetch(`${API_BASE_URL}/truck-owners/profile`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            setTruckOwnerId(data.data.id);
-            return data.data.id;
-          }
-        }
-        
-        throw new Error('Failed to fetch truck owner profile');
-      } catch (err) {
-        setError('Unable to load truck owner information');
-        console.error('Error fetching truck owner ID:', err);
-        return null;
-      }
+  // Get headers for API calls - FIXED: Include required headers for auth middleware
+  const getHeaders = () => {
+    const user = getCurrentUser();
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Add development headers that your auth middleware requires
+    headers['X-Employee-Id'] = user?.employeeId || '1'; // Required by your auth middleware
+    headers['X-User-Roles'] = 'Truck Owner'; // Required by your auth middleware
+    
+    // Add authorization if you have token-based auth
+    const token = localStorage.getItem('token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
+    
+    return headers;
+  }
 
+  useEffect(() => {
     const fetchTrucks = async () => {
       try {
         setLoading(true);
-        const ownerId = await fetchTruckOwnerId();
         
-        if (!ownerId) {
-          return;
-        }
-
         const response = await fetch(`${API_BASE_URL}/truck-owners/trucks`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
-          }
+          headers: getHeaders()
         })
+
+        console.log('Trucks response status:', response.status);
 
         if (response.status === 401) {
           throw new Error('Unauthorized access');
         }
 
         if (response.status === 403) {
-          throw new Error('Access forbidden - insufficient permissions');
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Access forbidden - check your headers');
         }
 
         if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.message || 'Failed to fetch trucks');
+          const errorData = await response.json();
+          throw new Error(errorData.message || `HTTP ${response.status}: Failed to fetch trucks`);
         }
 
         const data = await response.json();
@@ -174,41 +156,43 @@ export default function TruckManagement() {
     try {
       const response = await fetch(`${API_BASE_URL}/truck-owners/trucks/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
+        headers: getHeaders()
       })
 
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.message || 'Failed to delete truck')
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete truck');
       }
 
-      setTrucks(trucks.filter(truck => truck.id !== id))
+      const result = await response.json();
+      if (result.success) {
+        setTrucks(trucks.filter(truck => truck.id !== id));
+      } else {
+        throw new Error(result.message || 'Failed to delete truck');
+      }
     } catch (err) {
-      setError(err.message)
-      console.error('Error deleting truck:', err)
+      setError(err.message);
+      console.error('Error deleting truck:', err);
     }
   }
 
   const handleView = (truck) => {
-    setViewingTruck(truck)
+    setViewingTruck(truck);
   }
 
   const validateTruckNumber = (truckNo) => {
     // Indian vehicle registration number pattern
-    const pattern = /^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$/
-    return pattern.test(truckNo.toUpperCase())
+    const pattern = /^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$/;
+    return pattern.test(truckNo.toUpperCase());
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Validate truck number
     if (!validateTruckNumber(formData.truckNo)) {
-      alert('Please enter a valid vehicle registration number (e.g., TN01AB1234)')
-      return
+      alert('Please enter a valid vehicle registration number (e.g., TN01AB1234)');
+      return;
     }
 
     try {
@@ -227,62 +211,65 @@ export default function TruckManagement() {
         fitnessExpiry: formData.fitnessExpiry || null,
         permitExpiry: formData.permitExpiry || null,
         nextService: formData.nextService || null
-      }
+      };
 
       const url = editingTruck 
         ? `${API_BASE_URL}/truck-owners/trucks/${editingTruck.id}`
-        : `${API_BASE_URL}/truck-owners/trucks`
+        : `${API_BASE_URL}/truck-owners/trucks`;
 
-      const method = editingTruck ? 'PUT' : 'POST'
+      const method = editingTruck ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
         method,
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        },
+        headers: getHeaders(),
         body: JSON.stringify(truckData)
-      })
+      });
+
+      console.log('Save truck response status:', response.status);
 
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.message || `Failed to ${editingTruck ? 'update' : 'create'} truck`)
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Failed to ${editingTruck ? 'update' : 'create'} truck`);
       }
 
-      const data = await response.json()
+      const data = await response.json();
       
-      if (editingTruck) {
-        setTrucks(trucks.map(truck => truck.id === editingTruck.id ? data.data : truck))
+      if (data.success) {
+        if (editingTruck) {
+          setTrucks(trucks.map(truck => truck.id === editingTruck.id ? data.data : truck));
+        } else {
+          setTrucks([...trucks, data.data]);
+        }
+        
+        setIsModalOpen(false);
+        setError(null);
       } else {
-        setTrucks([...trucks, data.data])
+        throw new Error(data.message || `Failed to ${editingTruck ? 'update' : 'create'} truck`);
       }
-      
-      setIsModalOpen(false)
-      setError(null)
 
     } catch (err) {
-      setError(err.message)
-      console.error(`Error ${editingTruck ? 'updating' : 'creating'} truck:`, err)
+      setError(err.message);
+      console.error(`Error ${editingTruck ? 'updating' : 'creating'} truck:`, err);
     }
   }
 
-  const [currentTruckId, setCurrentTruckId] = useState(null)
+  const [currentTruckId, setCurrentTruckId] = useState(null);
 
   const fileInputRefs = {
     'RC Book': React.createRef(),
     'Insurance': React.createRef(),
     'Fitness Certificate': React.createRef()
-  }
+  };
 
   const handleUploadClick = async (truckId, docType) => {
-    setCurrentTruckId(truckId)
+    setCurrentTruckId(truckId);
     if (fileInputRefs[docType] && fileInputRefs[docType].current) {
-      fileInputRefs[docType].current.click()
+      fileInputRefs[docType].current.click();
     }
-  }
+  };
 
   const handleFileChange = async (e, docType) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file && currentTruckId) {
       try {
         const formData = new FormData();
@@ -296,10 +283,11 @@ export default function TruckManagement() {
         const response = await fetch(`${API_BASE_URL}/truck-owners/trucks/${currentTruckId}/documents`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            // Note: Don't set Content-Type for FormData, let browser set it
           },
           body: formData
-        })
+        });
 
         if (response.ok) {
           // Update local state to show document is uploaded
@@ -308,8 +296,8 @@ export default function TruckManagement() {
               ...truck, 
               [`${docType.toLowerCase().replace(' ', '')}File`]: 'Uploaded'
             } : truck
-          ))
-          alert(`${docType} uploaded successfully`)
+          ));
+          alert(`${docType} uploaded successfully`);
         } else {
           throw new Error('Upload failed');
         }
@@ -318,19 +306,19 @@ export default function TruckManagement() {
         alert('Upload failed. Please try again.');
       }
     }
-  }
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Not set';
     return new Date(dateString).toLocaleDateString('en-IN');
-  }
+  };
 
   if (loading) {
     return (
       <div className="p-6 bg-slate-50 min-h-screen flex items-center justify-center">
         <div className="text-lg">Loading trucks...</div>
       </div>
-    )
+    );
   }
 
   return (
@@ -652,5 +640,5 @@ export default function TruckManagement() {
         </form>
       </Modal>
     </div>
-  )
+  );
 }

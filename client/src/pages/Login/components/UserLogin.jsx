@@ -127,7 +127,7 @@ export default function UserLogin() {
       // If user has multiple roles, authenticate first then show role selection
       if (normalizedUserRoles.length > 1) {
         // Authenticate the user
-        const res = loginUser({
+        const res = await loginUser({
           phone,
           otp,
           selectedRoles: normalizedUserRoles,
@@ -167,7 +167,7 @@ export default function UserLogin() {
       }
 
       // Single role user - proceed with login
-      const res = loginUser({
+      const res = await loginUser({
         phone,
         otp,
         selectedRoles: normalizedUserRoles,

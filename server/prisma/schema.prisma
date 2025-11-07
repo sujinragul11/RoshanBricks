@@ -13,6 +13,7 @@ enum UserType {
   MANUFACTURER
   CUSTOMER
   ADMIN
+  TRUCK_OWNER
 }
 
 enum UserStatus {
@@ -46,6 +47,19 @@ enum LabourStatus {
   ASSIGNED
   BUSY
   UNAVAILABLE
+}
+
+enum TruckStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
+enum TripStatus {
+  UPCOMING
+  RUNNING
+  COMPLETED
+  CANCELLED
 }
 
 model User {
@@ -478,7 +492,7 @@ model ActingLabour {
   @@index([assignedToType])
 }
 
-// NEW: Truck Owner Driver Table
+// Truck Owner Driver Table
 model TruckOwnerDriver {
   id             BigInt       @id @default(autoincrement())
   truckOwnerId   BigInt       // Reference to ActingLabour (Truck Owner)
@@ -517,7 +531,7 @@ model TruckOwnerDriver {
   @@index([aadhaarNumber])
 }
 
-// NEW: Truck Owner Truck Table
+// Truck Owner Truck Table
 model TruckOwnerTruck {
   id           BigInt    @id @default(autoincrement())
   truckOwnerId BigInt    // Reference to ActingLabour (Truck Owner)
@@ -532,7 +546,7 @@ model TruckOwnerTruck {
   fitnessFile  String?   // File path or URL for Fitness Certificate
   
   // Additional truck details
-  status       String    @default("Active")
+  status       TruckStatus @default(ACTIVE)
   registrationYear Int?
   chassisNumber    String?
   engineNumber     String?
@@ -568,7 +582,7 @@ model Trip {
   startTime        DateTime?
   estimatedArrival DateTime?
   actualArrival    DateTime?
-  status           String    @default("Upcoming")
+  status           TripStatus @default(UPCOMING)
   cargo            String?
   agent            String?
   orderId          String?

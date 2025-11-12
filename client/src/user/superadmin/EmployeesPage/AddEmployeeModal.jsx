@@ -200,18 +200,27 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
-            <Button type="button" variant="primary" onClick={onClose} className="px-6 py-2.5">
-              Cancel
-            </Button>
-            <Button type="submit" variant="primary" className="px-6 py-2.5">
-              Add Employee
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+         <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
+  <Button 
+    type="button" 
+    variant="primary" 
+    onClick={onClose} 
+    className="px-6 py-2.5 bg-red-500 text-white hover:bg-red-600 focus:ring-red-500"
+  >
+    Cancel
+  </Button>
+  <Button 
+    type="submit" 
+    variant="primary" 
+    className="px-6 py-2.5 bg-orange-500 text-white hover:bg-orange-600 focus:ring-orange-500"
+  >
+    Add Employee
+  </Button>
+</div>
+</form>
+</div>
+</div>
+);
 };
 
 export default AddEmployeeModal;

@@ -4,6 +4,7 @@ import { loginSuperAdmin, isAuthenticated } from '../../../lib/auth'
 import Button from '../../../components/ui/Button'
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { pudgy,white } from '../../../../public/lottie/lottie';
+import { Loader2 } from 'lucide-react';
 export default function SuperAdminLogin() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -98,13 +99,17 @@ export default function SuperAdminLogin() {
                 </div>
               )}
 
-              <Button
-                type="submit"
-                className="w-full h-11 rounded-xl text-[15px] ml-2 cursor-pointer"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Signing in...' : 'Sign in '}
-              </Button>
+              <div className="flex justify-center">
+                <Button
+                  type="submit"
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-xl text-[15px] flex items-center justify-center gap-2 cursor-pointer transition duration-200"
+                  disabled={isLoading}
+                >
+                  {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
+                  {isLoading ? "Logging in..." : "Login"}
+                </Button>
+              </div>
+              
             </form>
             <p className="text-xs text-gray-500 text-center mt-4 ml-20">
               By continuing you agree to our <span className="underline underline-offset-2">Terms</span> and <span className="underline underline-offset-2">Privacy Policy</span>.

@@ -582,4 +582,5 @@ class TruckOwnerService {
   }
 }
 
+
 module.exports = new TruckOwnerService();

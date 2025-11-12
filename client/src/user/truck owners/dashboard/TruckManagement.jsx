@@ -639,6 +639,7 @@ export default function TruckManagement() {
           </div>
         </form>
       </Modal>
+      
     </div>
   );
 }

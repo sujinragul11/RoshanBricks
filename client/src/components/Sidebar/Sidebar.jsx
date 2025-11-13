@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'; // ✅ Add this import at the top
+import { NavLink, useNavigate } from 'react-router-dom'; // ✅ Add this import at the top
 import {
   Factory, Building2, Store, UserRound, UserCheck, Users, LogOut, X,
   TrendingUp, FileText, CreditCard, Package, LayoutDashboard, ShoppingCart,
@@ -16,7 +16,6 @@ const active = ({ isActive }) =>
   isActive
     ? `${linkBase} bg-[#F08344] text-white shadow-lg shadow-[#F08344]/25`
     : `${linkBase} text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm`;
-    
 
 const MENU_CONFIG = {
   superadmin: [
@@ -33,9 +32,8 @@ const MENU_CONFIG = {
     { to: '/dashboard/report', label: 'Reports', icon: FileText },
     { to: '/dashboard/signup-approval', label: 'SignUp Approval', icon: UserCheck },
     // { to : '/dashboard/product-stock', label: 'Product Stock', icon: Store },
-      { to : '/dashboard/project-requirement', label: 'PRD', icon: File },
+    { to: '/dashboard/project-requirement', label: 'PRD', icon: File },
   ],
-  
   agent: [
     { to: '/dashboard/agent-dashboard', label: 'Dashboard', icon: TrendingUp },
     { to: '/dashboard/agent-products', label: 'Products', icon: Package },
@@ -64,7 +62,7 @@ const MENU_CONFIG = {
   ],
   driver: [
     { to: '/dashboard/drivers', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/dashboard/drivers/load', label: 'Loads For Delivery', icon:  Package  },
+    { to: '/dashboard/drivers/load', label: 'Loads For Delivery', icon: Package },
     { to: '/dashboard/drivers/trip-details', label: 'Delivery Trips', icon: Truck },
     { to: '/dashboard/drivers/earnings', label: 'Earnings', icon: DollarSign },
     { to: '/dashboard/drivers/profile', label: 'Profile', icon: User },
@@ -72,6 +70,7 @@ const MENU_CONFIG = {
 };
 
 export default function Sidebar({ isCollapsed, onClose, mobile }) {
+  const navigate = useNavigate();
   const [activeRole, setActiveRole] = useState(() => getCurrentUserActiveRole() || 'guest');
   const userRoles = getCurrentUserRoles() || [];
 
@@ -89,15 +88,15 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
   const handleRoleSwitch = (role) => {
     setCurrentUserActiveRole(role);
     setActiveRole(role);
-    // Navigate to the appropriate dashboard for the new role
+    // Navigate to the appropriate dashboard for the new role without page refresh
     const dashboardRoutes = {
-      agent: '/agents/dashboard',
-      manufacturer: '/manufacturers/dashboard',
-      truckowner: '/truck-owners/dashboard',
-      driver: '/drivers/dashboard'
+      agent: '/dashboard/agent-dashboard',
+      manufacturer: '/dashboard/manufacturer-dashboard',
+      truckowner: '/dashboard/truck-owners',
+      driver: '/dashboard/drivers'
     };
     const route = dashboardRoutes[role] || '/';
-    window.location.href = route;
+    navigate(route);
   };
 
   return (
@@ -158,11 +157,10 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
                   <button
                     key={role}
                     onClick={() => handleRoleSwitch(role)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                      isActive
-                        ? 'bg-[#F08344] text-white shadow-sm'
-                        : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-                    }`}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${isActive
+                      ? 'bg-[#F08344] text-white shadow-sm'
+                      : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                      }`}
                   >
                     {roleLabels[role] || role}
                   </button>

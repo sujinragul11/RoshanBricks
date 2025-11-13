@@ -177,7 +177,7 @@ export default function UserLogin() {
           displayName = `${approvedUser.name} (${approvedUser.agentCode})`;
         }
 
-         const currentUser = JSON.parse(localStorage.getItem("rt_user") || "{}");
+        const currentUser = JSON.parse(localStorage.getItem("rt_user") || "{}");
         localStorage.setItem("rt_user", JSON.stringify({
           ...currentUser,
           name: displayName,
@@ -318,11 +318,10 @@ export default function UserLogin() {
                             key={type.value}
                             type="button"
                             onClick={() => setSelectedRole(type.value)}
-                            className={`flex flex-col items-center justify-center h-16 rounded-xl border text-sm font-medium transition-all relative ${
-                              isSelected
+                            className={`flex flex-col items-center justify-center h-16 rounded-xl border text-sm font-medium transition-all relative ${isSelected
                                 ? "bg-indigo-100 text-indigo-700 border-indigo-300 shadow-sm"
                                 : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200"
-                            }`}
+                              }`}
                           >
                             <div className="flex flex-col items-center gap-1">
                               {type.icon}
@@ -416,8 +415,8 @@ export default function UserLogin() {
                   {isLoading
                     ? "Logging in..."
                     : showRoleSelection
-                    ? "Continue"
-                    : "Login"}
+                      ? "Continue"
+                      : "Login"}
                 </Button>
               </div>
 

@@ -2,15 +2,24 @@ import { Menu, PanelLeftClose, PanelLeftOpen, Bell, Search, Settings, LogOut, Us
 import { getCurrentUser, logout } from '../../lib/auth'
 import { getCurrentUserActiveRole } from '../../lib/roles'
 import Button from '../ui/Button'
+import { useState, useEffect } from 'react'
 
 export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesktopSidebarCollapsed }) {
   const user = getCurrentUser()
-  const activeRole = getCurrentUserActiveRole()
+  const [activeRole, setActiveRole] = useState(() => getCurrentUserActiveRole())
+
+  useEffect(() => {
+    const handleRoleChange = () => {
+      const newActiveRole = getCurrentUserActiveRole()
+      if (newActiveRole !== activeRole) setActiveRole(newActiveRole)
+    }
+    window.addEventListener('storage', handleRoleChange)
+    return () => window.removeEventListener('storage', handleRoleChange)
+  }, [activeRole])
 
   // Get user data from localStorage for name display
   const currentUser = JSON.parse(localStorage.getItem('rt_user') || '{}')
-  
-  
+
   const getRoleDisplayName = (role) => {
     const roleNames = {
       superadmin: 'Super Admin',
@@ -21,14 +30,13 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
     }
     return roleNames[role] || role
   }
-  
 
   const getUserInitials = () => {
     // For Super Admin, always show "SA"
     if (activeRole === 'superadmin') {
       return 'SA'
     }
-    
+
     // For regular users, show their name initials
     if (currentUser.firstName && currentUser.lastName) {
       return `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`.toUpperCase()
@@ -65,25 +73,24 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
     }
     return getRoleDisplayName(activeRole)
   }
-  
+
   return (
     <header className="h-14 sm:h-16 bg-white border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 sticky top-0 z-20 shadow-sm">
       {/* Left Section */}
       <div className="flex items-center gap-2 sm:gap-4">
         {/* Mobile Menu Toggle */}
-        <button 
-          className="md:hidden p-1.5 sm:p-2 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors" 
+        <button
+          className="md:hidden p-1.5 sm:p-2 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors"
           onClick={onToggleSidebar}
           aria-label="Toggle mobile menu"
         >
           <Menu className="size-4 sm:size-5" />
         </button>
-        
+
         {/* Desktop Sidebar Toggle */}
-        <button 
-          className={`hidden md:block p-1.5 sm:p-2 rounded-lg hover:bg-slate-100 transition-colors ${
-            isDesktopSidebarCollapsed ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-slate-900'
-          }`}
+        <button
+          className={`hidden md:block p-1.5 sm:p-2 rounded-lg hover:bg-slate-100 transition-colors ${isDesktopSidebarCollapsed ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-slate-900'
+            }`}
           onClick={onToggleDesktopSidebar}
           aria-label="Toggle sidebar"
         >
@@ -93,7 +100,7 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
             <PanelLeftClose className="size-4 sm:size-5" />
           )}
         </button>
-        
+
         {/* Page Title - Hidden on very small screens */}
         <div className="hidden sm:block">
           <h2 className="text-lg sm:text-xl font-bold text-slate-900 truncate">Dashboard</h2>
@@ -112,7 +119,7 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
         <button className="lg:hidden p-1.5 sm:p-2 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors">
           <Search className="size-4 sm:size-5" />
         </button>
-        
+
         {/* Notifications */}
         <button className="relative p-1.5 sm:p-2 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors">
           <Bell className="size-4 sm:size-5" />
@@ -120,12 +127,12 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
             <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white rounded-full"></span>
           </span>
         </button>
-        
+
         {/* Settings - Hidden on small screens */}
         <button className="hidden md:block p-1.5 sm:p-2 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors">
           <Settings className="size-4 sm:size-5" />
         </button>
-        
+
         {/* User Info */}
         <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-slate-200">
           {/* User Details - Hidden on mobile */}
@@ -139,15 +146,14 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
           </div>
 
           {/* User Avatar */}
-          <div className={`w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-lg flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-sm ${
-            activeRole === 'superadmin' 
-              ? 'bg-gradient-to-br from-purple-600 to-purple-700' 
-              : 'bg-gradient-to-br from-blue-600 to-blue-700'
-          }`}>
+          <div className={`w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-lg flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-sm ${activeRole === 'superadmin'
+            ? 'bg-gradient-to-br from-purple-600 to-purple-700'
+            : 'bg-gradient-to-br from-blue-600 to-blue-700'
+            }`}>
             {getUserInitials()}
           </div>
         </div>
-        
+
         {/* Logout Button */}
         <Button
           variant="primary"

@@ -505,6 +505,7 @@ export default function Dashboard() {
             setDeliveries(deliveries.map(d => d.id === id ? { ...d, status } : d))
             fetchDashboardData(); // Refresh data
           }}
+          
         />
       )}
     </div>

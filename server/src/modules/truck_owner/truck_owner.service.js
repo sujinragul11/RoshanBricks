@@ -17,28 +17,28 @@ class TruckOwnerService {
       // Get total orders assigned to this truck owner
       const totalOrders = await prisma.order.count({
         where: {
-          assignedTruckOwnerId: actingLabourId
+          assignedTruckOwnerId: BigInt(actingLabourId)
         }
       });
 
       // Get orders by status
       const completedOrders = await prisma.order.count({
         where: {
-          assignedTruckOwnerId: actingLabourId,
+          assignedTruckOwnerId: BigInt(actingLabourId),
           status: 'COMPLETED'
         }
       });
 
       const pendingOrders = await prisma.order.count({
         where: {
-          assignedTruckOwnerId: actingLabourId,
+          assignedTruckOwnerId: BigInt(actingLabourId),
           status: 'PENDING'
         }
       });
 
       const inProgressOrders = await prisma.order.count({
         where: {
-          assignedTruckOwnerId: actingLabourId,
+          assignedTruckOwnerId: BigInt(actingLabourId),
           status: 'IN_PROGRESS'
         }
       });
@@ -46,42 +46,42 @@ class TruckOwnerService {
       // Get total trucks
       const totalTrucks = await prisma.truckOwnerTruck.count({
         where: {
-          truckOwnerId: actingLabourId
+          truckOwnerId: BigInt(actingLabourId)
         }
       });
 
       // Get total drivers
       const totalDrivers = await prisma.truckOwnerDriver.count({
         where: {
-          truckOwnerId: actingLabourId
+          truckOwnerId: BigInt(actingLabourId)
         }
       });
 
       // Get total trips
       const totalTrips = await prisma.trip.count({
         where: {
-          truckOwnerId: actingLabourId
+          truckOwnerId: BigInt(actingLabourId)
         }
       });
 
       // Get trips by status - fixed to use correct enum values
       const runningTrips = await prisma.trip.count({
         where: {
-          truckOwnerId: actingLabourId,
+          truckOwnerId: BigInt(actingLabourId),
           status: 'RUNNING'
         }
       });
 
       const upcomingTrips = await prisma.trip.count({
         where: {
-          truckOwnerId: actingLabourId,
+          truckOwnerId: BigInt(actingLabourId),
           status: 'UPCOMING'
         }
       });
 
       const completedTrips = await prisma.trip.count({
         where: {
-          truckOwnerId: actingLabourId,
+          truckOwnerId: BigInt(actingLabourId),
           status: 'COMPLETED'
         }
       });
@@ -89,7 +89,7 @@ class TruckOwnerService {
       // Get recent orders
       const recentOrders = await prisma.order.findMany({
         where: {
-          assignedTruckOwnerId: actingLabourId
+          assignedTruckOwnerId: BigInt(actingLabourId)
         },
         include: {
           manufacturer: {
@@ -204,7 +204,7 @@ class TruckOwnerService {
       const existingTruck = await prisma.truckOwnerTruck.findUnique({
         where: { truckNo: truckData.truckNo }
       });
-      
+
       if (existingTruck) {
         throw new Error('Truck number already exists');
       }
@@ -212,7 +212,7 @@ class TruckOwnerService {
       return await prisma.truckOwnerTruck.create({
         data: {
           ...truckData,
-          truckOwnerId: actingLabourId
+          truckOwnerId: BigInt(actingLabourId)
         }
       });
     } catch (error) {
@@ -225,7 +225,7 @@ class TruckOwnerService {
     try {
       // Verify ownership
       const truck = await prisma.truckOwnerTruck.findFirst({
-        where: { id: truckId, truckOwnerId: actingLabourId }
+        where: { id: truckId, truckOwnerId: BigInt(actingLabourId) }
       });
 
       if (!truck) {
@@ -237,7 +237,7 @@ class TruckOwnerService {
         const existingTruck = await prisma.truckOwnerTruck.findUnique({
           where: { truckNo: truckData.truckNo }
         });
-        
+
         if (existingTruck) {
           throw new Error('Truck number already exists');
         }
@@ -257,11 +257,11 @@ class TruckOwnerService {
     try {
       // Verify ownership and check for active trips
       const truck = await prisma.truckOwnerTruck.findFirst({
-        where: { 
-          id: truckId, 
-          truckOwnerId: actingLabourId 
+        where: {
+          id: truckId,
+          truckOwnerId: BigInt(actingLabourId)
         },
-        include: { 
+        include: {
           trips: {
             where: {
               status: { in: ['UPCOMING', 'RUNNING'] }
@@ -314,7 +314,7 @@ class TruckOwnerService {
       return await prisma.truckOwnerDriver.create({
         data: {
           ...driverData,
-          truckOwnerId: actingLabourId
+          truckOwnerId: BigInt(actingLabourId)
         }
       });
     } catch (error) {
@@ -327,9 +327,9 @@ class TruckOwnerService {
     try {
       // Verify ownership
       const driver = await prisma.truckOwnerDriver.findFirst({
-        where: { 
-          id: driverId, 
-          truckOwnerId: actingLabourId 
+        where: {
+          id: driverId,
+          truckOwnerId: BigInt(actingLabourId)
         }
       });
 
@@ -351,9 +351,9 @@ class TruckOwnerService {
     try {
       // Verify ownership and check for active trips
       const driver = await prisma.truckOwnerDriver.findFirst({
-        where: { 
-          id: driverId, 
-          truckOwnerId: actingLabourId 
+        where: {
+          id: driverId,
+          truckOwnerId: BigInt(actingLabourId)
         },
         include: {
           trips: {
@@ -501,7 +501,7 @@ class TruckOwnerService {
           orderId: orderId, // Use string ID directly
           driverId: parseInt(driverId),
           truckId: parseInt(truckId),
-          truckOwnerId: actingLabourId,
+          truckOwnerId: BigInt(actingLabourId),
           fromLocation,
           toLocation,
           status: status || 'UPCOMING',

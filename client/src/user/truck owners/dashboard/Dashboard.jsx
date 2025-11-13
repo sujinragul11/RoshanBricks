@@ -159,18 +159,18 @@ export default function Dashboard() {
         setError(`Failed to load dashboard: ${err.message}`);
         
         // Fallback to mock data if API fails completely
-        setStats({
-          totalTrucks: 8,
-          activeTrucks: 6,
-          inactiveTrucks: 2,
-          runningTrips: 3,
-          upcomingTrips: 2,
-          completedTrips: 15,
-          monthlyEarnings: 125000,
-          yearlyEarnings: 1500000,
-          totalDrivers: 12,
-          totalOrders: 20
-        });
+        // setStats({
+        //   totalTrucks: 8,
+        //   activeTrucks: 6,
+        //   inactiveTrucks: 2,
+        //   runningTrips: 3,
+        //   upcomingTrips: 2,
+        //   completedTrips: 15,
+        //   monthlyEarnings: 125000,
+        //   yearlyEarnings: 1500000,
+        //   totalDrivers: 12,
+        //   totalOrders: 20
+        // });
       } finally {
         setLoading(false);
       }
@@ -286,6 +286,7 @@ export default function Dashboard() {
               <h3 className="text-sm font-medium text-yellow-800">
                 Using estimated data
               </h3>
+
               <p className="text-sm text-yellow-700 mt-1">
                 {error} Showing calculated statistics based on available data.
               </p>

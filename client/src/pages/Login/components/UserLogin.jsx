@@ -49,6 +49,7 @@ export default function UserLogin() {
         JSON.stringify({
           ...currentUser,
           selectedRole: selectedRole,
+          activeRole: selectedRole,
         })
       );
 
@@ -176,18 +177,12 @@ export default function UserLogin() {
           displayName = `${approvedUser.name} (${approvedUser.agentCode})`;
         }
 
-        localStorage.setItem(
-          "currentUser",
-          JSON.stringify({
-            id: approvedUser.id,
-            firstName: displayName.split(" ")[0] || "",
-            lastName: displayName.split(" ").slice(1).join(" ") || "",
-            phone: approvedUser.phone,
-            role: approvedUser.roles,
-            email: approvedUser.email,
-            displayName: displayName,
-          })
-        );
+         const currentUser = JSON.parse(localStorage.getItem("rt_user") || "{}");
+        localStorage.setItem("rt_user", JSON.stringify({
+          ...currentUser,
+          name: displayName,
+          displayName: displayName,
+        }));
 
         // Show role selection after successful login
         setUserData(approvedUser);
@@ -233,6 +228,7 @@ export default function UserLogin() {
           phone: approvedUser.phone,
           email: approvedUser.email,
           name: displayName,
+          displayName: displayName,
           userType: approvedUser.userType,
         })
       );

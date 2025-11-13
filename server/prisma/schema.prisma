@@ -432,17 +432,32 @@ model Employee {
 }
 
 model ManufacturerProduct {
-  id              String    @id @default(uuid())
-  manufacturerId  BigInt
-  name            String
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id                String   @id @default(cuid())
+  manufacturerId    BigInt
+  name              String
+  category          String?
+  description       String?
+  priceRange        String?
+  imageUrl          String?
+  stockQuantity     Int      @default(0)
+  minOrderQuantity  Int      @default(1)
+  qualityRating     Int?
+  offer             String?
+  buyersCount       Int      @default(0)
+  returnExchange    Boolean  @default(false)
+  cashOnDelivery    Boolean  @default(false)
+  paymentOptions    String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  manufacturer    Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
-  orderItems      OrderItem[]
+  manufacturer Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
+  orderItems   OrderItem[]
 
   @@map("manufacturer_products")
   @@index([manufacturerId])
+  @@index([category])
+  @@index([isActive])
 }
 
 model AuditLog {
@@ -492,7 +507,6 @@ model ActingLabour {
   @@index([assignedToType])
 }
 
-// Truck Owner Driver Table
 model TruckOwnerDriver {
   id             BigInt       @id @default(autoincrement())
   truckOwnerId   BigInt       // Reference to ActingLabour (Truck Owner)
@@ -504,7 +518,7 @@ model TruckOwnerDriver {
   rating         Float        @default(0.0)
   experience     Int          @default(0)
   
-  // Document fields from your image
+  // Document fields
   licenseNumber  String?
   aadhaarNumber  String?
   licenseFile    String?      // File path or URL for license
@@ -531,7 +545,6 @@ model TruckOwnerDriver {
   @@index([aadhaarNumber])
 }
 
-// Truck Owner Truck Table
 model TruckOwnerTruck {
   id           BigInt    @id @default(autoincrement())
   truckOwnerId BigInt    // Reference to ActingLabour (Truck Owner)
@@ -539,7 +552,7 @@ model TruckOwnerTruck {
   type         String    // Container Truck, Open Truck, etc.
   capacity     String    // e.g., "20 Ton"
   
-  // Document fields from your image
+  // Document fields
   rcDetails    String?   // RC validity details
   rcFile       String?   // File path or URL for RC Book
   insuranceFile String?  // File path or URL for Insurance
@@ -622,5 +635,4 @@ model ManufacturerEmployee {
   @@index([manufacturerId])
   @@index([role])
   @@index([status])
-  
 }
